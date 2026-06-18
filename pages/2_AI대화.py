@@ -111,18 +111,18 @@ st.markdown("""
     
     /* 버튼 */
     .stButton>button {
-        background-color: #D2691E;
-        color: white !important;
+        background-color: #D2B48C;
+        color: #333 !important;
         border: none;
         border-radius: 12px;
         padding: 0.8rem 1.5rem;
         font-weight: 600;
         transition: all 0.3s ease;
     }
-    
+
     .stButton>button:hover {
-        background-color: #A0522D;
-        color: white !important;
+        background-color: #C4A574;
+        color: #333 !important;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
     }
@@ -147,11 +147,42 @@ st.markdown("""
         border-radius: 12px;
         padding: 1rem;
         font-size: 1rem;
+        background-color: white !important;
+        color: #333 !important;
     }
     
     .stTextInput>div>div>input:focus {
         border-color: #D2691E;
         box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
+    }
+    
+    /* 셀렉트박스 */
+    .stSelectbox>div>div>select {
+        background-color: white !important;
+        color: #333 !important;
+        border: 2px solid #E8DCC4;
+        border-radius: 12px;
+        padding: 0.8rem;
+        font-size: 1rem;
+    }
+    
+    .stSelectbox>div>div>div {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    /* 드롭다운 옵션 */
+    .stSelectbox [role="listbox"] {
+        background-color: white !important;
+    }
+    
+    .stSelectbox [role="option"] {
+        color: #333 !important;
+        background-color: white !important;
+    }
+    
+    .stSelectbox [role="option"]:hover {
+        background-color: #F5F5DC !important;
     }
     
     /* 사이드바 */

@@ -122,18 +122,18 @@ st.markdown("""
     
     /* 버튼 */
     .stButton>button {
-        background-color: #D2691E;
-        color: white !important;
+        background-color: #D2B48C;
+        color: #333 !important;
         border: none;
         border-radius: 12px;
         padding: 0.7rem 1.5rem;
         font-weight: 600;
         transition: all 0.3s ease;
     }
-    
+
     .stButton>button:hover {
-        background-color: #A0522D;
-        color: white !important;
+        background-color: #C4A574;
+        color: #333 !important;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
     }
@@ -150,6 +150,108 @@ st.markdown("""
     input, textarea, select {
         color: #333 !important;
         background-color: white !important;
+    }
+    
+    /* 셀렉트박스 - 모든 상태에 강제 적용 */
+    .stSelectbox label {
+        color: #333 !important;
+        font-weight: 600 !important;
+    }
+    
+    .stSelectbox > div > div {
+        background-color: white !important;
+    }
+    
+    .stSelectbox > div > div > div {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] {
+        background-color: white !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] > div {
+        background-color: white !important;
+        color: #333 !important;
+        border: 1px solid #D2691E !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] > div:hover {
+        border-color: #8B4513 !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] input {
+        color: #333 !important;
+        background-color: white !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] svg {
+        color: #333 !important;
+        fill: #333 !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] span {
+        color: #333 !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] div[data-testid="stMarkdownContainer"] {
+        color: #333 !important;
+    }
+    
+    /* 드롭다운 리스트 */
+    .stSelectbox [role="listbox"] {
+        background-color: white !important;
+    }
+    
+    .stSelectbox [role="option"] {
+        color: #333 !important;
+        background-color: white !important;
+    }
+    
+    .stSelectbox [role="option"]:hover {
+        background-color: #F5F5DC !important;
+        color: #333 !important;
+    }
+    
+    /* 전역 셀렉트박스 스타일 강제 */
+    [data-baseweb="select"] * {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    [data-baseweb="popover"] {
+        background-color: white !important;
+    }
+    
+    [data-baseweb="popover"] * {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    [data-baseweb="menu"] {
+        background-color: white !important;
+    }
+    
+    [data-baseweb="menu"] * {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    [data-baseweb="menu"] li:hover {
+        background-color: #F5F5DC !important;
+    }
+    
+    /* placeholder 텍스트도 어둡게 */
+    ::placeholder {
+        color: #666 !important;
+        opacity: 1 !important;
+    }
+    
+    /* 선택된 값 강제 스타일 */
+    [data-baseweb="select"] [aria-selected="true"] {
+        background-color: white !important;
+        color: #333 !important;
     }
     
     /* 사이드바 */

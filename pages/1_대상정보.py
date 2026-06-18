@@ -1,10 +1,11 @@
 """
-대상정보 페이지
+대상 정보 입력 페이지
 대상자(어르신) 정보 등록 및 관리
 """
 
 import streamlit as st
 from datetime import datetime
+from typing import Optional
 import sys
 import os
 
@@ -13,9 +14,30 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from database.db_user import UserManager
 
+# 전국 시군구 데이터
+KOREA_REGIONS = {
+    "서울특별시": ["강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구", "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구", "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구"],
+    "부산광역시": ["강서구", "금정구", "남구", "동래구", "동구", "부산진구", "북구", "사상구", "사하구", "서구", "수영구", "연제구", "영도구", "중구", "해운대구"],
+    "대구광역시": ["남구", "달서구", "동구", "북구", "서구", "수성구", "중구"],
+    "인천광역시": ["강화군", "계양구", "남동구", "동구", "미추홀구", "부평구", "서구", "연수구", "옹진군", "중구"],
+    "광주광역시": ["광산구", "남구", "동구", "북구", "서구"],
+    "대전광역시": ["대덕구", "동구", "서구", "유성구", "중구"],
+    "울산광역시": ["남구", "동구", "북구", "울주군", "중구"],
+    "세종특별자치시": ["세종특별자치시"],
+    "경기도": ["가평군", "고양시", "과천시", "광명시", "광주시", "구리시", "군포시", "김포시", "남양주시", "동두천시", "부천시", "성남시", "수원시", "시흥시", "안산시", "안성시", "안양시", "양주시", "양평군", "여주시", "연천군", "오산시", "용인시", "의왕시", "의정부시", "이천시", "파주시", "평택시", "포천시", "하남시", "화성시"],
+    "강원특별자치도": ["강릉시", "고성군", "동해시", "삼척시", "속초시", "양구군", "양양군", "영월군", "원주시", "인제군", "정선군", "철원군", "춘천시", "태백시", "평창군", "홍천군", "화천군", "횡성군"],
+    "충청북도": ["괴산군", "단양군", "보은군", "영동군", "옥천군", "음성군", "제천시", "증평군", "진천군", "청주시", "충주시"],
+    "충청남도": ["계룡시", "공주시", "금산군", "논산시", "당진시", "보령시", "부여군", "서산시", "서천군", "아산시", "예산군", "천안시", "청양군", "태안군", "홍성군"],
+    "전북특별자치도": ["고창군", "군산시", "김제시", "남원시", "무주군", "부안군", "순창군", "완주군", "익산시", "임실군", "장수군", "전주시", "정읍시", "진안군"],
+    "전라남도": ["강진군", "고흥군", "곡성군", "광양시", "구례군", "나주시", "담양군", "목포시", "무안군", "보성군", "순천시", "신안군", "여수시", "영광군", "영암군", "완도군", "장성군", "장흥군", "진도군", "함평군", "해남군", "화순군"],
+    "경상북도": ["경산시", "경주시", "고령군", "구미시", "군위군", "김천시", "문경시", "봉화군", "상주시", "성주군", "안동시", "영덕군", "영양군", "영주시", "영천시", "예천군", "울진군", "울릉군", "의성군", "청도군", "청송군", "칠곡군", "포항시"],
+    "경상남도": ["거제시", "거창군", "고성군", "김해시", "남해군", "밀양시", "사천시", "산청군", "양산시", "의령군", "창녕군", "창원시", "통영시", "하동군", "함안군", "함양군", "합천군"],
+    "제주특별자치도": ["서귀포시", "제주시"]
+}
+
 # 페이지 설정
 st.set_page_config(
-    page_title="대상정보 - 기억상자 AI",
+    page_title="대상 정보 입력 - 기억상자 AI",
     page_icon="👤",
     layout="wide"
 )
@@ -94,8 +116,8 @@ st.markdown("""
     
     /* 버튼 */
     .stButton>button {
-        background-color: #D2691E;
-        color: white !important;
+        background-color: #D2B48C;
+        color: #333 !important;
         border: none;
         border-radius: 12px;
         padding: 0.8rem 2rem;
@@ -103,12 +125,32 @@ st.markdown("""
         font-weight: 600;
         transition: all 0.3s ease;
     }
-    
+
     .stButton>button:hover {
-        background-color: #A0522D;
-        color: white !important;
+        background-color: #C4A574;
+        color: #333 !important;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+    }
+
+    /* 폼 제출 버튼 */
+    button[kind="formSubmit"] {
+        background-color: #D2B48C !important;
+        color: #333 !important;
+    }
+
+    button[kind="formSubmit"]:hover {
+        background-color: #C4A574 !important;
+    }
+
+    /* 모든 버튼 강제 적용 */
+    button {
+        background-color: #D2B48C !important;
+        color: #333 !important;
+    }
+
+    button:hover {
+        background-color: #C4A574 !important;
     }
     
     /* 텍스트 색상 */
@@ -116,20 +158,53 @@ st.markdown("""
         color: #333 !important;
     }
     
-    h1, h2, h3, h4, h5, h6 {
-        color: #8B4513 !important;
+    /* 섹션 타이틀 가운데 정렬 */
+    .section-title {
+        text-align: center !important;
+        margin: 1.5rem 0 1rem 0 !important;
+        border: none !important;
+        border-left: none !important;
     }
-    
-    input, textarea, select {
-        color: #333 !important;
-        background-color: white !important;
-    }
-    
-    /* 입력 필드 */
+
+    /* 입력 필드 폭 조정 및 가운데 정렬 */
     .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>select {
         border: 2px solid #E8DCC4;
         border-radius: 10px;
         padding: 0.8rem;
+        background-color: white !important;
+        color: #333 !important;
+        max-width: 600px !important;
+        margin: 0 auto !important;
+    }
+
+    /* 컨테이너 테두리 제거 */
+    .stTextInput>div, .stTextArea>div, .stSelectbox>div,
+    .stTextInput>div>div, .stTextArea>div>div, .stSelectbox>div>div {
+        border: none !important;
+    }
+
+    /* 컨테이너 가운데 정렬 */
+    .stTextInput>div, .stTextArea>div, .stSelectbox>div {
+        display: flex;
+        justify-content: center;
+    }
+
+    /* 라벨 가운데 정렬 */
+    .stTextInput label, .stSelectbox label {
+        text-align: center !important;
+        display: block;
+        margin: 0 auto !important;
+    }
+
+    /* 검은 자국 제거 - 모든 컨테이너 */
+    .stTextInput>div, .stTextArea>div, .stSelectbox>div,
+    .stTextInput>div>div, .stTextArea>div>div, .stSelectbox>div>div {
+        background-color: transparent !important;
+    }
+
+    /* 전체 배경색 설정 */
+    .stApp {
+        background-color: #FFF8DC !important;
     }
     
     .stTextInput>div>div>input:focus, .stTextArea>div>div>textarea:focus {
@@ -137,9 +212,134 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
     }
     
+    /* 셀렉트박스 드롭다운 */
+    .stSelectbox label {
+        color: #333 !important;
+        font-weight: 600 !important;
+    }
+    
+    .stSelectbox > div > div {
+        background-color: white !important;
+    }
+    
+    .stSelectbox > div > div > div {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] {
+        background-color: white !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] > div {
+        background-color: white !important;
+        color: #333 !important;
+        border: 2px solid #E8DCC4 !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] > div:hover {
+        border-color: #D2691E !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] input {
+        color: #333 !important;
+        background-color: white !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] svg {
+        color: #333 !important;
+        fill: #333 !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] span {
+        color: #333 !important;
+    }
+    
+    .stSelectbox>div>div>div[data-baseweb="select"] {
+        background-color: white !important;
+    }
+    
+    .stSelectbox [role="listbox"] {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    .stSelectbox [role="option"] {
+        color: #333 !important;
+        background-color: white !important;
+    }
+    
+    .stSelectbox [role="option"]:hover {
+        background-color: #F5F5DC !important;
+    }
+    
+    .stSelectbox [role="option"][aria-selected="true"] {
+        background-color: #F5F5DC !important;
+        color: #333 !important;
+    }
+    
+    /* 전역 셀렉트박스 */
+    [data-baseweb="select"] * {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    [data-baseweb="popover"] {
+        background-color: white !important;
+    }
+    
+    [data-baseweb="popover"] * {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    [data-baseweb="menu"] {
+        background-color: white !important;
+    }
+    
+    [data-baseweb="menu"] * {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    [data-baseweb="menu"] li:hover {
+        background-color: #F5F5DC !important;
+    }
+    
+    [data-baseweb="menu"] li {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
     /* 사이드바 */
     [data-testid="stSidebar"] {
         background-color: #F5F5DC;
+    }
+    
+    /* 드롭다운 메뉴 추가 스타일 */
+    div[data-baseweb="popover"] > div {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    div[data-baseweb="popover"] > div > div {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    div[data-baseweb="popover"] ul {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    div[data-baseweb="popover"] li {
+        background-color: white !important;
+        color: #333 !important;
+    }
+    
+    div[data-baseweb="popover"] li div {
+        background-color: white !important;
+        color: #333 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -170,9 +370,7 @@ def show_user_list():
             
             with col1:
                 st.markdown(f"**{user['name']}**")
-                if user['birth_year']:
-                    age = datetime.now().year - user['birth_year']
-                    st.caption(f"{user['gender']} · {age}세 ({user['birth_year']}년생)")
+                st.caption(f"{user['gender'] or '-'}")
             
             with col2:
                 if user['past_job']:
@@ -223,9 +421,6 @@ def show_user_detail(user_id: int):
         st.markdown("#### 기본 정보")
         st.markdown(f"**이름:** {user['name']}")
         st.markdown(f"**성별:** {user['gender'] or '-'}")
-        if user['birth_year']:
-            age = datetime.now().year - user['birth_year']
-            st.markdown(f"**생년월일:** {user['birth_year']}년 ({age}세)")
         
         st.markdown("#### 과거 직업")
         st.info(user['past_job'] or '-')
@@ -243,7 +438,7 @@ def show_user_detail(user_id: int):
         st.markdown("#### 좋아했던 노래/가수")
         st.info(user['favorite_song'] or '-')
     
-    st.markdown("#### 주변 중요 인물")
+    st.markdown("#### 주의사항 (민감한 주제)")
     st.info(user['important_people'] or '-')
     
     col1, col2 = st.columns(2)
@@ -279,39 +474,22 @@ def show_user_form(user_id: Optional[int] = None):
     
     with st.form("user_form"):
         # 기본 정보
-        st.markdown('<div class="section-title">👤 교명</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">👤 기본 정보</div>', unsafe_allow_html=True)
         name = st.text_input(
             "이름",
             value=user['name'] if user else "",
             placeholder="예: 김영희",
-            help="대상자의 이름을 입력해주세요",
-            label_visibility="collapsed"
+            help="대상자의 이름을 입력해주세요"
         )
         
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown('<div class="section-title">🚻 과거 직업</div>', unsafe_allow_html=True)
-            gender = st.selectbox(
-                "성별",
-                options=["선택안함", "남성", "여성", "기타"],
-                index=["선택안함", "남성", "여성", "기타"].index(user['gender']) if user and user['gender'] else 0,
-                label_visibility="collapsed"
-            )
-        
-        with col2:
-            st.markdown('<div class="section-title">🎂 출생연도</div>', unsafe_allow_html=True)
-            current_year = datetime.now().year
-            birth_year = st.number_input(
-                "출생연도",
-                min_value=1920,
-                max_value=current_year,
-                value=user['birth_year'] if user and user['birth_year'] else 1950,
-                step=1,
-                label_visibility="collapsed"
-            )
+        gender = st.selectbox(
+            "성별",
+            options=["선택안함", "남성", "여성", "기타"],
+            index=["선택안함", "남성", "여성", "기타"].index(user['gender']) if user and user['gender'] else 0
+        )
         
         # 과거 직업
-        st.markdown('<div class="section-title">💼 좋아하는 음식</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">💼 과거 직업</div>', unsafe_allow_html=True)
         past_job = st.text_area(
             "과거 직업",
             value=user['past_job'] if user else "",
@@ -321,17 +499,29 @@ def show_user_form(user_id: Optional[int] = None):
         )
         
         # 거주 지역
-        st.markdown('<div class="section-title">🏘️ 추억의 장소</div>', unsafe_allow_html=True)
-        residence = st.text_area(
-            "거주 지역",
-            value=user['residence'] if user else "",
-            placeholder="예: 서울 종로구, 부산 해운대",
-            help="살았던 지역을 입력해주세요",
-            label_visibility="collapsed"
+        st.markdown('<div class="section-title">🏘️ 거주 지역</div>', unsafe_allow_html=True)
+        
+        # 기존 값에서 시/도 추출
+        residence_province = "서울특별시"
+        
+        if user and user['residence'] and isinstance(user['residence'], str) and user['residence'].strip():
+            # 기존 값 파싱 (예: "서울특별시 강남구" 또는 "서울 강남구")
+            parts = user['residence'].split()
+            if len(parts) >= 1:
+                for province in KOREA_REGIONS.keys():
+                    if province in parts[0]:
+                        residence_province = province
+                        break
+        
+        residence = st.selectbox(
+            "시/도",
+            options=list(KOREA_REGIONS.keys()),
+            index=list(KOREA_REGIONS.keys()).index(residence_province) if residence_province in KOREA_REGIONS else 0,
+            key="residence_province"
         )
         
         # 좋아하는 음식
-        st.markdown('<div class="section-title">🍲 추억의 장소</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">🍲 좋아하는 음식</div>', unsafe_allow_html=True)
         favorite_food = st.text_area(
             "좋아하는 음식",
             value=user['favorite_food'] if user else "",
@@ -340,16 +530,29 @@ def show_user_form(user_id: Optional[int] = None):
         )
         
         # 추억의 장소
-        st.markdown('<div class="section-title">📍 좋아했던 노래 / 가수</div>', unsafe_allow_html=True)
-        memorable_place = st.text_area(
-            "추억의 장소",
-            value=user['memorable_place'] if user else "",
-            placeholder="예: 남산 타워, 명동 거리, 고향 앞 개울",
-            label_visibility="collapsed"
+        st.markdown('<div class="section-title">📍 추억의 장소</div>', unsafe_allow_html=True)
+        
+        # 기존 값에서 시/도 추출
+        memorable_province = "서울특별시"
+        
+        if user and user['memorable_place'] and isinstance(user['memorable_place'], str) and user['memorable_place'].strip():
+            # 기존 값 파싱
+            parts = user['memorable_place'].split()
+            if len(parts) >= 1:
+                for province in KOREA_REGIONS.keys():
+                    if province in parts[0]:
+                        memorable_province = province
+                        break
+        
+        memorable_place = st.selectbox(
+            "시/도",
+            options=list(KOREA_REGIONS.keys()),
+            index=list(KOREA_REGIONS.keys()).index(memorable_province) if memorable_province in KOREA_REGIONS else 0,
+            key="memorable_province"
         )
         
         # 좋아했던 노래/가수
-        st.markdown('<div class="section-title">🎵 주변 중요 인물 (선택사항)</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">🎵 좋아했던 노래 / 가수</div>', unsafe_allow_html=True)
         favorite_song = st.text_area(
             "좋아했던 노래/가수",
             value=user['favorite_song'] if user else "",
@@ -357,36 +560,21 @@ def show_user_form(user_id: Optional[int] = None):
             label_visibility="collapsed"
         )
         
-        # 주변 중요 인물
-        st.markdown('<div class="section-title">👨‍👩‍👧‍👦 주변 중요 인물 (선택 사항)</div>', unsafe_allow_html=True)
+        # 주의사항
+        st.markdown('<div class="section-title">⚠️ 주의사항 (민감한 주제)</div>', unsafe_allow_html=True)
         important_people = st.text_area(
-            "주변 중요 인물",
+            "주의사항",
             value=user['important_people'] if user else "",
-            placeholder="예: 남편: 김철수, 딸: 김민지, 친구: 이순희",
-            help="관계와 이름을 함께 입력해주세요",
+            placeholder="예: 병명, 가족 문제 등 대화 시 피해야 할 민감한 주제",
+            help="대화 시 피해야 할 민감한 주제를 입력해주세요",
             label_visibility="collapsed"
         )
         
         # 제출 버튼
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            submitted = st.form_submit_button(
-                "✅ 저장하고 등록하기 ✓" if not user else "✅ 수정사항 저장하기",
-                use_container_width=True,
-                type="primary"
-            )
-        
-        with col2:
-            cancel = st.form_submit_button(
-                "취소",
-                use_container_width=True
-            )
-        
-        if cancel:
-            st.session_state.selected_user_id = None
-            st.session_state.edit_mode = False
-            st.rerun()
+        submitted = st.form_submit_button(
+            "✅ 저장하기" if not user else "✅ 수정사항 저장하기",
+            use_container_width=True
+        )
         
         if submitted:
             # 필수 항목 검증
@@ -404,7 +592,6 @@ def show_user_form(user_id: Optional[int] = None):
                         user_id=user['id'],
                         name=name,
                         gender=gender_value,
-                        birth_year=birth_year,
                         past_job=past_job if past_job else None,
                         residence=residence if residence else None,
                         favorite_food=favorite_food if favorite_food else None,
@@ -425,7 +612,6 @@ def show_user_form(user_id: Optional[int] = None):
                     new_user_id = UserManager.create_user(
                         name=name,
                         gender=gender_value,
-                        birth_year=birth_year,
                         past_job=past_job if past_job else None,
                         residence=residence if residence else None,
                         favorite_food=favorite_food if favorite_food else None,
@@ -453,31 +639,25 @@ def main():
     # 헤더
     st.markdown("""
         <div class="page-header">
-            <h1>👤 보호자 대상 입력</h1>
+            <h1>👤 대상 정보 입력</h1>
             <p>대화를 함께할 어르신의 정보를 입력해 주세요</p>
         </div>
     """, unsafe_allow_html=True)
     
-    # 탭 구성
-    tab1, tab2 = st.tabs(["📝 대상자 등록/수정", "📋 대상자 목록"])
-    
-    with tab1:
-        if st.session_state.selected_user_id and st.session_state.edit_mode:
-            # 수정 모드
-            show_user_form(st.session_state.selected_user_id)
-        elif st.session_state.selected_user_id and not st.session_state.edit_mode:
-            # 상세보기 모드
-            show_user_detail(st.session_state.selected_user_id)
-        else:
-            # 신규 등록 모드
-            show_user_form()
-    
-    with tab2:
-        show_user_list()
+    # 대상자 등록/수정
+    if st.session_state.selected_user_id and st.session_state.edit_mode:
+        # 수정 모드
+        show_user_form(st.session_state.selected_user_id)
+    elif st.session_state.selected_user_id and not st.session_state.edit_mode:
+        # 상세보기 모드
+        show_user_detail(st.session_state.selected_user_id)
+    else:
+        # 신규 등록 모드
+        show_user_form()
     
     # 사이드바
     with st.sidebar:
-        st.markdown("### 👤 대상정보 관리")
+        st.markdown("### 👤 대상 정보 관리")
         st.markdown("---")
         
         if st.button("🏠 메인으로", use_container_width=True):

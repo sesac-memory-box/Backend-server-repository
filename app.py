@@ -71,33 +71,99 @@ st.markdown("""
     }
     
     .mic-circle {
-        width: 200px;
-        height: 200px;
-        background: linear-gradient(135deg, #D2691E 0%, #8B4513 100%);
+        width: 180px;
+        height: 180px;
+        background: linear-gradient(135deg, #D2691E 0%, #A0522D 100%);
         border-radius: 50%;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         margin: 0 auto;
         cursor: pointer;
-        box-shadow: 0 8px 20px rgba(139, 69, 19, 0.3);
-        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(139, 69, 19, 0.3);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        animation: pulse 2s infinite;
+        gap: 0.5rem;
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 8px 25px rgba(139, 69, 19, 0.3);
+        }
+        50% {
+            box-shadow: 0 8px 35px rgba(139, 69, 19, 0.5), 0 0 0 10px rgba(210, 105, 30, 0.1);
+        }
+        100% {
+            box-shadow: 0 8px 25px rgba(139, 69, 19, 0.3);
+        }
     }
     
     .mic-circle:hover {
-        transform: scale(1.05);
-        box-shadow: 0 12px 25px rgba(139, 69, 19, 0.4);
+        transform: scale(1.08);
+        box-shadow: 0 12px 35px rgba(139, 69, 19, 0.4);
+        animation: none;
+    }
+    
+    .mic-circle:active {
+        transform: scale(0.95);
     }
     
     .mic-icon {
-        font-size: 5rem;
+        font-size: 4rem;
         color: white;
+        animation: mic-bounce 1.5s ease-in-out infinite;
+    }
+
+    .mic-text {
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: center;
+        line-height: 1.2;
     }
     
-    /* 버튼 스타일 */
+    @keyframes mic-bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-5px);
+        }
+    }
+    
+    /* 안내 문구 개선 */
+    .guide-text {
+        text-align: center;
+        color: #8B4513;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 1.5rem 0;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        animation: fade-in-up 0.8s ease-out;
+    }
+    
+    @keyframes fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .guide-subtext {
+        text-align: center;
+        color: #999;
+        font-size: 1rem;
+        margin-top: 0.5rem;
+    }
     .stButton>button {
-        background-color: #D2691E;
-        color: white !important;
+        background-color: #D2B48C;
+        color: #333 !important;
         border: none;
         border-radius: 15px;
         padding: 0.8rem 2rem;
@@ -105,10 +171,10 @@ st.markdown("""
         font-weight: 600;
         transition: all 0.3s ease;
     }
-    
+
     .stButton>button:hover {
-        background-color: #A0522D;
-        color: white !important;
+        background-color: #C4A574;
+        color: #333 !important;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
     }
@@ -192,36 +258,26 @@ def main():
         <div class="mic-container">
             <div class="mic-circle">
                 <div class="mic-icon">🎤</div>
+                <div class="mic-text">버튼을 눌러<br>말씀하세요</div>
             </div>
-            <p class="guide-text">버튼을 누르고 말씀해 주세요</p>
         </div>
     """, unsafe_allow_html=True)
-    
-    # 버튼 영역 (실제 기능용)
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        if st.button("🎤 녹음 시작하기", key="main_mic", use_container_width=True):
-            st.session_state.recording = not st.session_state.recording
-            if st.session_state.recording:
-                st.info("🎤 녹음 중... 말씀해 주세요")
-            else:
-                st.success("✅ 녹음 완료!")
     
     # 대화 기록 보기 버튼
     st.markdown("---")
     
-    st.markdown('<p class="guide-text">문의가 필요하시면 아래 메뉴를 이용해주세요</p>', unsafe_allow_html=True)
+    st.markdown('<p class="guide-text" style="font-size: 1.1rem; color: #999;">다른 메뉴가 필요하시면 아래를 선택해주세요</p>', unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
     
     with col1:
         if st.button("📋 이전 대화 기록 보기", use_container_width=True):
             st.switch_page("pages/3_이전대화기록.py")
-    
+
     with col2:
-        if st.button("💬 AI와 대화하기", use_container_width=True, type="primary"):
+        if st.button("💬 AI 와 대화하기", use_container_width=True):
             st.switch_page("pages/2_AI대화.py")
-    
+
     with col3:
         if st.button("👤 대상자 정보 관리", use_container_width=True):
             st.switch_page("pages/1_대상정보.py")
