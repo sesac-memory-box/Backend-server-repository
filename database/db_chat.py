@@ -35,13 +35,13 @@ class ChatManager:
             conversation_id = execute_query(query, (user_id, session_id), commit=True)
             
             if conversation_id:
-                print(f"✅ 대화 세션 생성 완료 (ID: {conversation_id}, Session: {session_id})")
+                print(f"[OK] 대화 세션 생성 완료 (ID: {conversation_id}, Session: {session_id})")
                 return (conversation_id, session_id)
             
             return None
             
         except Exception as e:
-            print(f"❌ 대화 세션 생성 오류: {e}")
+            print(f"[ERROR] 대화 세션 생성 오류: {e}")
             return None
     
     
@@ -69,7 +69,7 @@ class ChatManager:
             return result
             
         except Exception as e:
-            print(f"❌ 대화 세션 조회 오류: {e}")
+            print(f"[ERROR] 대화 세션 조회 오류: {e}")
             return None
     
     
@@ -97,7 +97,7 @@ class ChatManager:
             return result
             
         except Exception as e:
-            print(f"❌ 대화 세션 조회 오류: {e}")
+            print(f"[ERROR] 대화 세션 조회 오류: {e}")
             return None
     
     
@@ -127,7 +127,7 @@ class ChatManager:
             return result
             
         except Exception as e:
-            print(f"❌ 진행 중 대화 조회 오류: {e}")
+            print(f"[ERROR] 진행 중 대화 조회 오류: {e}")
             return None
     
     
@@ -172,13 +172,13 @@ class ChatManager:
                 """
                 execute_query(update_query, (conversation_id,), commit=True)
                 
-                print(f"✅ 메시지 추가 완료 (ID: {message_id})")
+                print(f"[OK] 메시지 추가 완료 (ID: {message_id})")
                 return message_id
             
             return None
             
         except Exception as e:
-            print(f"❌ 메시지 추가 오류: {e}")
+            print(f"[ERROR] 메시지 추가 오류: {e}")
             return None
     
     
@@ -221,7 +221,7 @@ class ChatManager:
             return results
             
         except Exception as e:
-            print(f"❌ 메시지 조회 오류: {e}")
+            print(f"[ERROR] 메시지 조회 오류: {e}")
             return []
     
     
@@ -254,7 +254,7 @@ class ChatManager:
             return results
             
         except Exception as e:
-            print(f"❌ 최근 메시지 조회 오류: {e}")
+            print(f"[ERROR] 최근 메시지 조회 오류: {e}")
             return []
     
     
@@ -283,14 +283,14 @@ class ChatManager:
             affected_rows = execute_query(query, (conversation_id,), commit=True)
             
             if affected_rows > 0:
-                print(f"✅ 대화 세션 {conversation_id} 종료 완료")
+                print(f"[OK] 대화 세션 {conversation_id} 종료 완료")
                 return True
             else:
-                print(f"⚠️ 대화 세션 {conversation_id}를 찾을 수 없거나 이미 종료되었습니다.")
+                print(f"[WARN] 대화 세션 {conversation_id}를 찾을 수 없거나 이미 종료되었습니다.")
                 return False
                 
         except Exception as e:
-            print(f"❌ 대화 세션 종료 오류: {e}")
+            print(f"[ERROR] 대화 세션 종료 오류: {e}")
             return False
     
     
@@ -316,7 +316,7 @@ class ChatManager:
             return result['count'] if result else 0
             
         except Exception as e:
-            print(f"❌ 메시지 개수 조회 오류: {e}")
+            print(f"[ERROR] 메시지 개수 조회 오류: {e}")
             return 0
     
     
@@ -350,7 +350,7 @@ class ChatManager:
             return None
             
         except Exception as e:
-            print(f"❌ 대화 시간 조회 오류: {e}")
+            print(f"[ERROR] 대화 시간 조회 오류: {e}")
             return None
     
     
@@ -371,14 +371,14 @@ class ChatManager:
             affected_rows = execute_query(query, (conversation_id,), commit=True)
             
             if affected_rows > 0:
-                print(f"✅ 대화 세션 {conversation_id} 삭제 완료")
+                print(f"[OK] 대화 세션 {conversation_id} 삭제 완료")
                 return True
             else:
-                print(f"⚠️ 대화 세션 {conversation_id}를 찾을 수 없습니다.")
+                print(f"[WARN] 대화 세션 {conversation_id}를 찾을 수 없습니다.")
                 return False
                 
         except Exception as e:
-            print(f"❌ 대화 세션 삭제 오류: {e}")
+            print(f"[ERROR] 대화 세션 삭제 오류: {e}")
             return False
     
     
@@ -417,7 +417,7 @@ class ChatManager:
             return result
             
         except Exception as e:
-            print(f"❌ 대화 요약 조회 오류: {e}")
+            print(f"[ERROR] 대화 요약 조회 오류: {e}")
             return None
 
 

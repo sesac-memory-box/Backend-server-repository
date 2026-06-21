@@ -50,9 +50,9 @@ def init_connection_pool():
                 **DB_CONFIG,
                 **CONNECTION_POOL_CONFIG
             )
-            print("✅ 데이터베이스 연결 풀 초기화 완료")
+            print("[OK] 데이터베이스 연결 풀 초기화 완료")
         except Error as e:
-            print(f"❌ 연결 풀 초기화 오류: {e}")
+            print(f"[ERROR] 연결 풀 초기화 오류: {e}")
             st.error(f"데이터베이스 연결 실패: {e}")
             raise
     
@@ -81,7 +81,7 @@ def get_connection():
             raise Error("연결이 활성화되지 않았습니다.")
             
     except Error as e:
-        print(f"❌ 데이터베이스 연결 오류: {e}")
+        print(f"[ERROR] 데이터베이스 연결 오류: {e}")
         st.error(f"데이터베이스 연결 오류: {e}")
         raise
 
@@ -97,7 +97,7 @@ def close_connection(connection):
         if connection and connection.is_connected():
             connection.close()
     except Error as e:
-        print(f"⚠️ 연결 종료 오류: {e}")
+        print(f"[WARN] 연결 종료 오류: {e}")
 
 
 @contextmanager
@@ -117,7 +117,7 @@ def get_db_connection():
     except Error as e:
         if connection:
             connection.rollback()
-        print(f"❌ 데이터베이스 오류: {e}")
+        print(f"[ERROR] 데이터베이스 오류: {e}")
         raise
     finally:
         if connection:
@@ -164,7 +164,7 @@ def execute_query(
     except Error as e:
         if connection:
             connection.rollback()
-        print(f"❌ 쿼리 실행 오류: {e}")
+        print(f"[ERROR] 쿼리 실행 오류: {e}")
         print(f"쿼리: {query}")
         print(f"파라미터: {params}")
         raise
@@ -203,7 +203,7 @@ def fetch_one(query: str, params: Optional[Tuple] = None) -> Optional[Tuple]:
         return result
         
     except Error as e:
-        print(f"❌ 쿼리 실행 오류: {e}")
+        print(f"[ERROR] 쿼리 실행 오류: {e}")
         print(f"쿼리: {query}")
         print(f"파라미터: {params}")
         raise
@@ -242,7 +242,7 @@ def fetch_all(query: str, params: Optional[Tuple] = None) -> List[Tuple]:
         return results
         
     except Error as e:
-        print(f"❌ 쿼리 실행 오류: {e}")
+        print(f"[ERROR] 쿼리 실행 오류: {e}")
         print(f"쿼리: {query}")
         print(f"파라미터: {params}")
         raise
@@ -278,7 +278,7 @@ def fetch_one_dict(query: str, params: Optional[Tuple] = None) -> Optional[Dict]
         return result
         
     except Error as e:
-        print(f"❌ 쿼리 실행 오류: {e}")
+        print(f"[ERROR] 쿼리 실행 오류: {e}")
         raise
         
     finally:
@@ -312,7 +312,7 @@ def fetch_all_dict(query: str, params: Optional[Tuple] = None) -> List[Dict]:
         return results
         
     except Error as e:
-        print(f"❌ 쿼리 실행 오류: {e}")
+        print(f"[ERROR] 쿼리 실행 오류: {e}")
         raise
         
     finally:
@@ -334,22 +334,22 @@ def test_connection() -> bool:
         
         if connection.is_connected():
             db_info = connection.get_server_info()
-            print(f"✅ MySQL 서버 연결 성공 (버전: {db_info})")
+            print(f"[OK] MySQL 서버 연결 성공 (버전: {db_info})")
             
             cursor = connection.cursor()
             cursor.execute("SELECT DATABASE()")
             db_name = cursor.fetchone()[0]
-            print(f"✅ 현재 데이터베이스: {db_name}")
+            print(f"[OK] 현재 데이터베이스: {db_name}")
             
             cursor.close()
             close_connection(connection)
             return True
         else:
-            print("❌ 데이터베이스 연결 실패")
+            print("[ERROR] 데이터베이스 연결 실패")
             return False
             
     except Error as e:
-        print(f"❌ 연결 테스트 오류: {e}")
+        print(f"[ERROR] 연결 테스트 오류: {e}")
         return False
 
 

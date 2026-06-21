@@ -49,6 +49,21 @@ st.markdown("""
     .stApp {
         background-color: #FFF8DC;
     }
+
+    [data-testid="stSidebarNav"] ul li:first-child a {
+        font-size: 0;
+    }
+
+    [data-testid="stSidebarNav"] ul li:first-child a span {
+        display: none;
+    }
+
+    [data-testid="stSidebarNav"] ul li:first-child a::after {
+        content: "메인 페이지";
+        display: inline-block;
+        font-size: 1rem;
+        color: #333;
+    }
     
     /* 페이지 헤더 */
     .page-header {
@@ -174,6 +189,25 @@ st.markdown("""
         background-color: white !important;
         color: #333 !important;
         max-width: 600px !important;
+        margin: 0 auto !important;
+    }
+
+    /* 셀렉트박스만 더 작게 */
+    .stSelectbox>div>div>select {
+        max-width: 120px !important;
+        min-width: 100px !important;
+        margin: 0 auto !important;
+    }
+
+    .stSelectbox>div>div {
+        max-width: 120px !important;
+        min-width: 100px !important;
+        margin: 0 auto !important;
+    }
+
+    .stSelectbox {
+        max-width: 120px !important;
+        min-width: 100px !important;
         margin: 0 auto !important;
     }
 
@@ -481,7 +515,7 @@ def show_user_form(user_id: Optional[int] = None):
             placeholder="예: 김영희",
             help="대상자의 이름을 입력해주세요"
         )
-        
+
         gender = st.selectbox(
             "성별",
             options=["선택안함", "남성", "여성", "기타"],
@@ -571,10 +605,12 @@ def show_user_form(user_id: Optional[int] = None):
         )
         
         # 제출 버튼
-        submitted = st.form_submit_button(
-            "✅ 저장하기" if not user else "✅ 수정사항 저장하기",
-            use_container_width=True
-        )
+        _, submit_col, _ = st.columns([1.2, 1, 1.2])
+        with submit_col:
+            submitted = st.form_submit_button(
+                "✅ 저장하기" if not user else "✅ 수정사항 저장하기",
+                use_container_width=True
+            )
         
         if submitted:
             # 필수 항목 검증
@@ -659,15 +695,7 @@ def main():
     with st.sidebar:
         st.markdown("### 👤 대상 정보 관리")
         st.markdown("---")
-        
-        if st.button("🏠 메인으로", use_container_width=True):
-            st.switch_page("app.py")
-        
-        if st.button("💬 AI 대화", use_container_width=True):
-            st.switch_page("pages/2_AI대화.py")
-        
-        st.markdown("---")
-        
+
         st.info("""
             **💡 입력 팁**
             

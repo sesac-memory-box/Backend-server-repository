@@ -26,53 +26,69 @@ st.markdown("""
     .stApp {
         background-color: #FFF8DC;
     }
+
+    [data-testid="stSidebarNav"] ul li:first-child a {
+        font-size: 0;
+    }
+
+    [data-testid="stSidebarNav"] ul li:first-child a span {
+        display: none;
+    }
+
+    [data-testid="stSidebarNav"] ul li:first-child a::after {
+        content: "메인 페이지";
+        display: inline-block;
+        font-size: 1rem;
+        color: #333;
+    }
     
     /* 메인 컨테이너 */
     .main .block-container {
-        padding-top: 2rem;
+        padding-top: 1rem;
         max-width: 900px;
     }
     
     /* 헤더 */
     .main-header {
         text-align: center;
-        padding: 1rem;
-        margin-bottom: 2rem;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
     }
     
     /* 환영 박스 */
     .welcome-box {
         background: linear-gradient(135deg, #FFF8DC 0%, #F5F5DC 100%);
-        padding: 3rem 2rem;
+        padding: 2rem 1.5rem;
         border-radius: 25px;
         text-align: center;
-        margin: 2rem auto;
+        margin: 1rem auto;
         box-shadow: 0 4px 15px rgba(139, 69, 19, 0.1);
     }
     
     .welcome-title {
-        font-size: 2.5rem;
+        font-size: 2rem;
         color: #333;
-        margin-bottom: 1rem;
+        margin-bottom: 0.7rem;
         font-weight: 600;
     }
     
     .welcome-subtitle {
-        font-size: 1.8rem;
+        font-size: 1.35rem;
         color: #8B4513;
         font-weight: bold;
-        margin: 1rem 0;
+        margin: 0.5rem 0;
+        line-height: 1.5;
     }
     
     /* 원형 마이크 버튼 */
     .mic-container {
         text-align: center;
-        margin: 3rem 0;
+        margin: 1.5rem 0;
     }
     
     .mic-circle {
-        width: 180px;
-        height: 180px;
+        width: 150px;
+        height: 150px;
         background: linear-gradient(135deg, #D2691E 0%, #A0522D 100%);
         border-radius: 50%;
         display: flex;
@@ -111,14 +127,14 @@ st.markdown("""
     }
     
     .mic-icon {
-        font-size: 4rem;
+        font-size: 3.2rem;
         color: white;
         animation: mic-bounce 1.5s ease-in-out infinite;
     }
 
     .mic-text {
         color: white;
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 600;
         text-align: center;
         line-height: 1.2;
@@ -263,25 +279,6 @@ def main():
         </div>
     """, unsafe_allow_html=True)
     
-    # 대화 기록 보기 버튼
-    st.markdown("---")
-    
-    st.markdown('<p class="guide-text" style="font-size: 1.1rem; color: #999;">다른 메뉴가 필요하시면 아래를 선택해주세요</p>', unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        if st.button("📋 이전 대화 기록 보기", use_container_width=True):
-            st.switch_page("pages/3_이전대화기록.py")
-
-    with col2:
-        if st.button("💬 AI 와 대화하기", use_container_width=True):
-            st.switch_page("pages/2_AI대화.py")
-
-    with col3:
-        if st.button("👤 대상자 정보 관리", use_container_width=True):
-            st.switch_page("pages/1_대상정보.py")
-    
     # 사이드바
     with st.sidebar:
         st.markdown("### 🏠 기억상자 AI")
@@ -296,23 +293,6 @@ def main():
                 st.error("❌ 데이터베이스 연결 실패")
         except Exception as e:
             st.error(f"⚠️ 연결 오류: {str(e)}")
-        
-        st.markdown("---")
-        
-        # 빠른 메뉴
-        st.markdown("### 📌 빠른 메뉴")
-        
-        if st.button("👤 대상정보", use_container_width=True):
-            st.switch_page("pages/1_대상정보.py")
-        
-        if st.button("💬 AI 대화", use_container_width=True):
-            st.switch_page("pages/2_AI대화.py")
-        
-        if st.button("📋 대화 기록", use_container_width=True):
-            st.switch_page("pages/3_이전대화기록.py")
-        
-        if st.button("📊 대화 요약", use_container_width=True):
-            st.switch_page("pages/4_오늘대화요약.py")
         
         st.markdown("---")
         

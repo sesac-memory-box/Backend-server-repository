@@ -29,6 +29,51 @@ st.markdown("""
     .stApp {
         background-color: #FFF8DC;
     }
+
+    [data-testid="stSidebarNav"] ul li:first-child a {
+        font-size: 0;
+    }
+
+    [data-testid="stSidebarNav"] ul li:first-child a span {
+        display: none;
+    }
+
+    [data-testid="stSidebarNav"] ul li:first-child a::after {
+        content: "메인 페이지";
+        display: inline-block;
+        font-size: 1rem;
+        color: #333;
+    }
+
+    /* 셀렉트박스 드롭다운 옵션 강제 흰색 */
+    div[data-baseweb="select"] > div > div > div > div > div,
+    div[data-baseweb="select"] > div > div > div > div > div > div,
+    div[data-baseweb="select"] > div > div > div > div > div > div > div,
+    div[data-baseweb="select"] > div > div > div > div > div > div > div > div,
+    div[data-baseweb="select"] > div > div > div > div > div > div > div > div > div {
+        background-color: white !important;
+        color: #333 !important;
+    }
+
+    /* 드롭다운 메뉴 아이템 */
+    div[data-baseweb="select"] > div > div > div > div > div > div > div > div > div,
+    div[data-baseweb="select"] > div > div > div > div > div > div > div > div > div > div {
+        background-color: white !important;
+        color: #333 !important;
+    }
+
+    /* 드롭다운 메뉴 아이템 hover */
+    div[data-baseweb="select"] > div > div > div > div > div > div > div > div > div:hover,
+    div[data-baseweb="select"] > div > div > div > div > div > div > div > div > div > div:hover {
+        background-color: #E8DCC4 !important;
+        color: #333 !important;
+    }
+
+    /* option 태그 강제 흰색 */
+    option {
+        background-color: white !important;
+        color: #333 !important;
+    }
     
     /* 채팅 컨테이너 */
     .chat-container {
@@ -139,6 +184,52 @@ st.markdown("""
     input, textarea, select {
         color: #333 !important;
         background-color: white !important;
+    }
+
+    /* Streamlit selectbox: selected value and dropdown menu */
+    .stSelectbox label {
+        color: #333 !important;
+        font-weight: 600 !important;
+    }
+
+    .stSelectbox [data-baseweb="select"],
+    .stSelectbox [data-baseweb="select"] > div {
+        background-color: white !important;
+        color: #111 !important;
+    }
+
+    .stSelectbox [data-baseweb="select"] > div {
+        border: 2px solid #E8DCC4 !important;
+        border-radius: 12px !important;
+    }
+
+    .stSelectbox [data-baseweb="select"] input,
+    .stSelectbox [data-baseweb="select"] span,
+    .stSelectbox [data-baseweb="select"] div,
+    .stSelectbox [data-baseweb="select"] svg {
+        color: #111 !important;
+        fill: #111 !important;
+    }
+
+    [data-baseweb="popover"],
+    [data-baseweb="popover"] > div,
+    [data-baseweb="menu"],
+    [role="listbox"] {
+        background-color: white !important;
+        color: #111 !important;
+    }
+
+    [data-baseweb="menu"] *,
+    [role="listbox"] *,
+    [role="option"] {
+        background-color: white !important;
+        color: #111 !important;
+    }
+
+    [role="option"]:hover,
+    [role="option"][aria-selected="true"] {
+        background-color: #F5F5DC !important;
+        color: #111 !important;
     }
     
     /* 입력 필드 */
@@ -304,13 +395,17 @@ def show_user_selector():
     user_options = {f"{user['name']} ({user['birth_year']}년생)" if user['birth_year'] 
                    else user['name']: user['id'] for user in users}
     
-    selected_name = st.selectbox(
-        "대상자 선택",
-        options=list(user_options.keys()),
-        key="user_selector"
-    )
+    _, selector_col, _ = st.columns([1, 1.2, 1])
+    with selector_col:
+        selected_name = st.selectbox(
+            "대상자 선택",
+            options=list(user_options.keys()),
+            key="user_selector"
+        )
+
+        start_chat = st.button("대화 시작하기", type="primary", use_container_width=True)
     
-    if st.button("대화 시작하기", type="primary", use_container_width=True):
+    if start_chat:
         user_id = user_options[selected_name]
         st.session_state.chat_user_id = user_id
         
@@ -532,18 +627,7 @@ def main():
     with st.sidebar:
         st.markdown("### 💬 AI 대화")
         st.markdown("---")
-        
-        if st.button("🏠 메인으로", use_container_width=True):
-            st.switch_page("app.py")
-        
-        if st.button("👤 대상정보", use_container_width=True):
-            st.switch_page("pages/1_대상정보.py")
-        
-        if st.button("📋 대화 기록", use_container_width=True):
-            st.switch_page("pages/3_이전대화기록.py")
-        
-        st.markdown("---")
-        
+
         st.info("""
             **💡 대화 팁**
             

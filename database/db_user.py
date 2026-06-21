@@ -58,11 +58,11 @@ class UserManager:
             )
             
             user_id = execute_query(query, params, commit=True)
-            print(f"✅ 대상자 '{name}' 등록 완료 (ID: {user_id})")
+            print(f"[OK] 대상자 '{name}' 등록 완료 (ID: {user_id})")
             return user_id
             
         except Exception as e:
-            print(f"❌ 대상자 등록 오류: {e}")
+            print(f"[ERROR] 대상자 등록 오류: {e}")
             return None
     
     
@@ -91,7 +91,7 @@ class UserManager:
             return result
             
         except Exception as e:
-            print(f"❌ 대상자 조회 오류: {e}")
+            print(f"[ERROR] 대상자 조회 오류: {e}")
             return None
     
     
@@ -121,7 +121,7 @@ class UserManager:
             return result
             
         except Exception as e:
-            print(f"❌ 대상자 조회 오류: {e}")
+            print(f"[ERROR] 대상자 조회 오류: {e}")
             return None
     
     
@@ -147,7 +147,7 @@ class UserManager:
             return results
             
         except Exception as e:
-            print(f"❌ 대상자 목록 조회 오류: {e}")
+            print(f"[ERROR] 대상자 목록 조회 오류: {e}")
             return []
     
     
@@ -171,7 +171,7 @@ class UserManager:
             return results
             
         except Exception as e:
-            print(f"❌ 대상자 요약 조회 오류: {e}")
+            print(f"[ERROR] 대상자 요약 조회 오류: {e}")
             return []
     
     
@@ -246,7 +246,7 @@ class UserManager:
             
             # 업데이트할 필드가 없으면 종료
             if not update_fields:
-                print("⚠️ 업데이트할 필드가 없습니다.")
+                print("[WARN] 업데이트할 필드가 없습니다.")
                 return False
             
             # 쿼리 생성
@@ -260,14 +260,14 @@ class UserManager:
             affected_rows = execute_query(query, tuple(params), commit=True)
             
             if affected_rows > 0:
-                print(f"✅ 대상자 ID {user_id} 정보 업데이트 완료")
+                print(f"[OK] 대상자 ID {user_id} 정보 업데이트 완료")
                 return True
             else:
-                print(f"⚠️ 대상자 ID {user_id}를 찾을 수 없습니다.")
+                print(f"[WARN] 대상자 ID {user_id}를 찾을 수 없습니다.")
                 return False
                 
         except Exception as e:
-            print(f"❌ 대상자 정보 수정 오류: {e}")
+            print(f"[ERROR] 대상자 정보 수정 오류: {e}")
             return False
     
     
@@ -288,14 +288,14 @@ class UserManager:
             affected_rows = execute_query(query, (user_id,), commit=True)
             
             if affected_rows > 0:
-                print(f"✅ 대상자 ID {user_id} 삭제 완료")
+                print(f"[OK] 대상자 ID {user_id} 삭제 완료")
                 return True
             else:
-                print(f"⚠️ 대상자 ID {user_id}를 찾을 수 없습니다.")
+                print(f"[WARN] 대상자 ID {user_id}를 찾을 수 없습니다.")
                 return False
                 
         except Exception as e:
-            print(f"❌ 대상자 삭제 오류: {e}")
+            print(f"[ERROR] 대상자 삭제 오류: {e}")
             return False
     
     
@@ -317,7 +317,7 @@ class UserManager:
             return result['count'] > 0 if result else False
             
         except Exception as e:
-            print(f"❌ 대상자 존재 확인 오류: {e}")
+            print(f"[ERROR] 대상자 존재 확인 오류: {e}")
             return False
     
     
@@ -343,7 +343,7 @@ class UserManager:
             return None
             
         except Exception as e:
-            print(f"❌ 나이 계산 오류: {e}")
+            print(f"[ERROR] 나이 계산 오류: {e}")
             return None
     
     
@@ -371,7 +371,7 @@ class UserManager:
             return None
             
         except Exception as e:
-            print(f"❌ 연대 계산 오류: {e}")
+            print(f"[ERROR] 연대 계산 오류: {e}")
             return None
     
     
@@ -405,7 +405,7 @@ class UserManager:
             return results
             
         except Exception as e:
-            print(f"❌ 대상자 검색 오류: {e}")
+            print(f"[ERROR] 대상자 검색 오류: {e}")
             return []
 
 

@@ -29,6 +29,21 @@ st.markdown("""
     .stApp {
         background-color: #FFF8DC;
     }
+
+    [data-testid="stSidebarNav"] ul li:first-child a {
+        font-size: 0;
+    }
+
+    [data-testid="stSidebarNav"] ul li:first-child a span {
+        display: none;
+    }
+
+    [data-testid="stSidebarNav"] ul li:first-child a::after {
+        content: "메인 페이지";
+        display: inline-block;
+        font-size: 1rem;
+        color: #333;
+    }
     
     /* 페이지 헤더 */
     .page-header {
@@ -643,18 +658,7 @@ def main():
     with st.sidebar:
         st.markdown("### 📋 대화 기록")
         st.markdown("---")
-        
-        if st.button("🏠 메인으로", use_container_width=True):
-            st.switch_page("app.py")
-        
-        if st.button("💬 AI 대화", use_container_width=True):
-            st.switch_page("pages/2_AI대화.py")
-        
-        if st.button("👤 대상정보", use_container_width=True):
-            st.switch_page("pages/1_대상정보.py")
-        
-        st.markdown("---")
-        
+
         st.info("""
             **💡 기록 활용 팁**
             

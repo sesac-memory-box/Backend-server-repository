@@ -86,7 +86,7 @@ class HistoryManager:
             return results
             
         except Exception as e:
-            print(f"❌ 대화 내역 조회 오류: {e}")
+            print(f"[ERROR] 대화 내역 조회 오류: {e}")
             return []
     
     
@@ -122,7 +122,7 @@ class HistoryManager:
             return results
             
         except Exception as e:
-            print(f"❌ 날짜별 대화 조회 오류: {e}")
+            print(f"[ERROR] 날짜별 대화 조회 오류: {e}")
             return []
     
     
@@ -160,7 +160,7 @@ class HistoryManager:
             return results
             
         except Exception as e:
-            print(f"❌ 기간별 대화 조회 오류: {e}")
+            print(f"[ERROR] 기간별 대화 조회 오류: {e}")
             return []
     
     
@@ -224,7 +224,7 @@ class HistoryManager:
             return conversation
             
         except Exception as e:
-            print(f"❌ 대화 상세 조회 오류: {e}")
+            print(f"[ERROR] 대화 상세 조회 오류: {e}")
             return None
     
     
@@ -267,13 +267,13 @@ class HistoryManager:
             summary_id = execute_query(query, params, commit=True)
             
             if summary_id:
-                print(f"✅ 대화 요약 생성 완료 (ID: {summary_id})")
+                print(f"[OK] 대화 요약 생성 완료 (ID: {summary_id})")
                 return summary_id
             
             return None
             
         except Exception as e:
-            print(f"❌ 대화 요약 생성 오류: {e}")
+            print(f"[ERROR] 대화 요약 생성 오류: {e}")
             return None
     
     
@@ -302,7 +302,7 @@ class HistoryManager:
             return result
             
         except Exception as e:
-            print(f"❌ 대화 요약 조회 오류: {e}")
+            print(f"[ERROR] 대화 요약 조회 오류: {e}")
             return None
     
     
@@ -351,7 +351,7 @@ class HistoryManager:
                 params.append(suggested_questions)
             
             if not update_fields:
-                print("⚠️ 업데이트할 필드가 없습니다.")
+                print("[WARN] 업데이트할 필드가 없습니다.")
                 return False
             
             query = f"""
@@ -364,14 +364,14 @@ class HistoryManager:
             affected_rows = execute_query(query, tuple(params), commit=True)
             
             if affected_rows > 0:
-                print(f"✅ 대화 요약 업데이트 완료 (conversation_id: {conversation_id})")
+                print(f"[OK] 대화 요약 업데이트 완료 (conversation_id: {conversation_id})")
                 return True
             else:
-                print(f"⚠️ 대화 요약을 찾을 수 없습니다.")
+                print("[WARN] 대화 요약을 찾을 수 없습니다.")
                 return False
                 
         except Exception as e:
-            print(f"❌ 대화 요약 수정 오류: {e}")
+            print(f"[ERROR] 대화 요약 수정 오류: {e}")
             return False
     
     
@@ -403,7 +403,7 @@ class HistoryManager:
             return result
             
         except Exception as e:
-            print(f"❌ 대화 통계 조회 오류: {e}")
+            print(f"[ERROR] 대화 통계 조회 오류: {e}")
             return None
     
     
@@ -435,7 +435,7 @@ class HistoryManager:
             return topics
             
         except Exception as e:
-            print(f"❌ 최근 주제 조회 오류: {e}")
+            print(f"[ERROR] 최근 주제 조회 오류: {e}")
             return []
     
     
@@ -480,7 +480,7 @@ class HistoryManager:
             return results
             
         except Exception as e:
-            print(f"❌ 대화 검색 오류: {e}")
+            print(f"[ERROR] 대화 검색 오류: {e}")
             return []
     
     
@@ -510,7 +510,7 @@ class HistoryManager:
             return result['count'] if result else 0
             
         except Exception as e:
-            print(f"❌ 월별 대화 횟수 조회 오류: {e}")
+            print(f"[ERROR] 월별 대화 횟수 조회 오류: {e}")
             return 0
 
 
