@@ -5,8 +5,14 @@ AI와 회상 대화하기
 
 import streamlit as st
 from datetime import datetime
+from typing import Optional
 import os
 import sys
+import requests
+import sounddevice as sd
+from scipy.io import wavfile
+import numpy as np
+import io
 
 # 프로젝트 루트를 sys.path에 추가
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -14,6 +20,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from database.db_user import UserManager
 from database.db_chat import ChatManager
 from database.db_history import HistoryManager
+
+# FastAPI 백엔드 URL 설정
+API_URL = "http://127.0.0.1:8000"
+
 
 # 페이지 설정
 st.set_page_config(
@@ -294,89 +304,120 @@ def init_session_state():
     
     if 'chat_messages' not in st.session_state:
         st.session_state.chat_messages = []
-    
+
+    if 'chat_api_messages' not in st.session_state:
+        st.session_state.chat_api_messages = []
+
+    if 'chat_summary' not in st.session_state:
+        st.session_state.chat_summary = None
+
     if 'waiting_for_ai' not in st.session_state:
         st.session_state.waiting_for_ai = False
 
+    if 'last_ai_audio' not in st.session_state:
+        st.session_state.last_ai_audio = None
 
-def generate_ai_response(user_message: str, user_info: dict, conversation_history: list) -> str:
-    """
-    AI 응답 생성 (OpenAI API 사용)
-    실제 구현 시 OpenAI API를 호출하여 응답 생성
-    
-    Args:
-        user_message: 사용자 메시지
-        user_info: 대상자 정보
-        conversation_history: 대화 히스토리
-    
-    Returns:
-        str: AI 응답
-    """
-    # TODO: OpenAI API 연동
-    # 여기서는 간단한 템플릿 응답을 반환
-    
-    # 환경변수에서 OpenAI API 키 확인
-    api_key = os.getenv('OPENAI_API_KEY')
-    
-    if not api_key or api_key == 'your_openai_api_key_here':
-        # API 키가 없을 때 샘플 응답
-        sample_responses = [
-            f"그렇군요! {user_info.get('name', '어르신')}께서 {user_message}라고 말씀하셨네요. 그 시절 어떤 냄새가 났나요?",
-            f"정말 재미있는 이야기네요! 그때 누구와 함께 계셨나요?",
-            f"아, 그 이야기를 들으니 그 시절이 떠오르시나요? 더 자세히 말씀해 주시겠어요?",
-            f"그때는 정말 좋은 시절이었을 것 같아요. 어떤 기분이셨나요?",
-        ]
-        import random
-        return random.choice(sample_responses)
-    
+    if 'user_input' not in st.session_state:
+        st.session_state.user_input = ""
+
+
+def generate_ai_response(user_message: str, user_id: Optional[int], summary: Optional[str], api_messages: list) -> dict:
+    """FastAPI 백엔드를 호출하여 AI 응답 및 대화 요약본을 가져옵니다."""
     try:
-        # OpenAI API 호출 (실제 구현)
-        import openai
-        openai.api_key = api_key
-        
-        # 시스템 프롬프트 구성
-        system_prompt = f"""당신은 치매 어르신을 위한 친절한 대화 상대입니다.
-        
-대상자 정보:
-- 이름: {user_info.get('name', '어르신')}
-- 출생연도: {user_info.get('birth_year', '알 수 없음')}
-- 과거 직업: {user_info.get('past_job', '알 수 없음')}
-- 거주지역: {user_info.get('residence', '알 수 없음')}
-- 좋아하는 음식: {user_info.get('favorite_food', '알 수 없음')}
-- 추억의 장소: {user_info.get('memorable_place', '알 수 없음')}
-- 좋아했던 노래/가수: {user_info.get('favorite_song', '알 수 없음')}
-
-대화 원칙:
-1. 과거의 구체적인 경험을 떠올리도록 감각 중심 질문을 합니다 (냄새, 소리, 촉감 등)
-2. "그때 어땠나요?", "누구와 함께였나요?" 같은 열린 질문을 사용합니다
-3. 짧고 간결하게 2-3문장으로 응답합니다
-4. 공감하고 격려하는 톤을 유지합니다
-5. 대상자의 과거 정보를 자연스럽게 대화에 활용합니다
-"""
-        
-        # 대화 히스토리 구성
-        messages = [{"role": "system", "content": system_prompt}]
-        
-        # 최근 5개 메시지만 포함
-        for msg in conversation_history[-5:]:
+        formatted_messages = []
+        for msg in api_messages:
             role = "user" if msg['speaker'] == 'user' else "assistant"
-            messages.append({"role": role, "content": msg['content']})
-        
-        messages.append({"role": "user", "content": user_message})
-        
-        # API 호출
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=messages,
-            max_tokens=150,
-            temperature=0.8
-        )
-        
-        return response.choices[0].message.content.strip()
-    
+            formatted_messages.append({"role": role, "content": msg['content']})
+
+        payload = {
+            "query": user_message,
+            "messages": formatted_messages,
+            "summary": summary,
+            "user_id": user_id
+        }
+
+        response = requests.post(f"{API_URL}/chat/", json=payload, timeout=30)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            st.error(f"API 오류: {response.text}")
+            return {"answer": "죄송합니다. 서버가 응답하지 않습니다.", "summary": None}
     except Exception as e:
-        print(f"AI 응답 생성 오류: {e}")
-        return f"죄송합니다. 지금은 응답을 생성할 수 없습니다. ({str(e)})"
+        st.error(f"서버 연결 실패: {str(e)}")
+        return {"answer": f"API 서버 연결 실패: {str(e)}", "summary": None}
+
+
+def text_to_speech(text: str) -> Optional[bytes]:
+    """텍스트를 음성으로 변환하는 API 호출"""
+    try:
+        response = requests.post(f"{API_URL}/tts/", json={"text": text, "voice": "alloy"}, timeout=30)
+        if response.status_code == 200:
+            return response.content
+    except Exception as e:
+        print(f"TTS 호출 오류: {e}")
+    return None
+
+
+def record_microphone(duration: int = 10, sample_rate: int = 16000) -> Optional[bytes]:
+    """마이크에서 음성을 녹음하고 WAV 바이트로 반환합니다."""
+    try:
+        st.info(f"🎤 {duration}초간 녹음 중입니다. 말씀해주세요...")
+        
+        # 마이크 녹음
+        audio_data = sd.rec(int(sample_rate * duration), samplerate=sample_rate, channels=1, dtype=np.int16)
+        sd.wait()
+        
+        # WAV 파일로 변환
+        wav_buffer = io.BytesIO()
+        wavfile.write(wav_buffer, sample_rate, audio_data)
+        wav_buffer.seek(0)
+        
+        st.success("✅ 녹음 완료!")
+        return wav_buffer.getvalue()
+    except Exception as e:
+        st.error(f"마이크 녹음 오류: {e}")
+    return None
+
+
+def transcribe_audio_bytes(audio_bytes: bytes) -> Optional[str]:
+    """마이크 녹음 바이트 데이터를 STT API로 전송하고 텍스트를 반환합니다."""
+    try:
+        files = {
+            "audio": (
+                "recording.wav",
+                audio_bytes,
+                "audio/wav"
+            )
+        }
+        response = requests.post(f"{API_URL}/stt/", files=files, timeout=30)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("transcript")
+        else:
+            st.error(f"STT API 오류: {response.text}")
+    except Exception as e:
+        st.error(f"STT 호출 오류: {e}")
+    return None
+
+
+def create_session_summary(conversation_id: int, messages: list) -> dict:
+    """대화 전체 메시지를 /chat/summary API에 보내고 요약 결과를 반환합니다."""
+    try:
+        payload = {
+            "messages": [
+                {"role": msg["role"], "content": msg["content"]}
+                for msg in messages
+            ]
+        }
+        response = requests.post(f"{API_URL}/chat/summary", json=payload, timeout=30)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            st.error(f"대화 요약 API 오류: {response.text}")
+    except Exception as e:
+        st.error(f"대화 요약 호출 오류: {e}")
+    return {}
 
 
 def show_user_selector():
@@ -415,16 +456,24 @@ def show_user_selector():
             conversation_id, session_id = result
             st.session_state.chat_conversation_id = conversation_id
             st.session_state.chat_messages = []
+            st.session_state.chat_api_messages = []
+            st.session_state.chat_summary = None
+            st.session_state.last_ai_audio = None
+            st.session_state.user_input = ""
             
             # 환영 메시지 추가
             user = UserManager.get_user_by_id(user_id)
-            welcome_msg = f"안녕하세요, {user['name']}님! 😊 오늘은 어떤 추억을 이야기할까요?"
+            welcome_msg = f"안녕하세요, {user['name']}님! 😊 오늘은 어떤 추억을 이야기해볼까요?"
             
             ChatManager.add_message(conversation_id, 'ai', welcome_msg)
             st.session_state.chat_messages.append({
                 'speaker': 'ai',
                 'content': welcome_msg,
                 'timestamp': datetime.now()
+            })
+            st.session_state.chat_api_messages.append({
+                'speaker': 'assistant',
+                'content': welcome_msg
             })
             
             st.rerun()
@@ -436,6 +485,11 @@ def show_user_selector():
 
 def show_chat_interface():
     """채팅 인터페이스"""
+    # 메시지 전송 후 입력창 초기화를 위한 플래그 확인 (위젯 생성 전)
+    if st.session_state.get("clear_input_after_send"):
+        st.session_state.user_input = ""
+        st.session_state.clear_input_after_send = False
+    
     user = UserManager.get_user_by_id(st.session_state.chat_user_id)
     conversation = ChatManager.get_conversation_by_id(st.session_state.chat_conversation_id)
     
@@ -475,6 +529,21 @@ def show_chat_interface():
             }
             for msg in messages
         ]
+
+        # 초기 API 메시지 목록 구성
+        if st.session_state.chat_summary is None:
+            st.session_state.chat_api_messages = [
+                {
+                    'speaker': msg['speaker'],
+                    'content': msg['content']
+                }
+                for msg in messages
+            ]
+        else:
+            st.session_state.chat_api_messages = []
+
+    if st.session_state.chat_summary:
+        st.info(f"📝 이전 대화 요약: {st.session_state.chat_summary}")
     
     # 채팅 컨테이너
     st.markdown('<div class="chat-container">', unsafe_allow_html=True)
@@ -496,53 +565,62 @@ def show_chat_interface():
             """, unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
+
+    if st.session_state.last_ai_audio:
+        st.audio(st.session_state.last_ai_audio, format='audio/mp3')
     
     # AI가 응답 중일 때
     if st.session_state.waiting_for_ai:
         st.info("🤔 AI가 생각하고 있습니다...")
     
-    # 제안 질문 (대화가 시작된 경우)
-    if len(st.session_state.chat_messages) > 1:
-        st.markdown("#### 💡 이런 질문은 어떠세요?")
-        
-        suggestions = [
-            "국말이 제일 맛있던 음식점은 어디였나요?",
-            "친구들과 즐겨 했던 놀이가 있나요?",
-            "어렸을 때 꿈은 무엇이었나요?"
-        ]
-        
-        cols = st.columns(len(suggestions))
-        for i, suggestion in enumerate(suggestions):
-            with cols[i]:
-                if st.button(suggestion, key=f"suggest_{i}", use_container_width=True):
-                    handle_user_message(suggestion, user)
+    # 마이크 녹음 섹션
+    st.markdown("---")
+    st.markdown("#### 🎤 음성으로 말씀하기")
     
-    # 메시지 입력
+    col1, col2, col3 = st.columns([1, 1, 1])
+    
+    with col2:
+        if st.button("🎤 녹음 시작", use_container_width=True, key="mic_record_btn"):
+            audio_bytes = record_microphone(duration=10)
+            if audio_bytes:
+                st.audio(audio_bytes, format='audio/wav')
+                
+                # STT 처리
+                transcript = transcribe_audio_bytes(audio_bytes)
+                if transcript:
+                    st.info(f"📝 인식 결과: {transcript}")
+                    st.session_state.user_input = transcript
+                    st.rerun()
+
     st.markdown("---")
     
-    col1, col2 = st.columns([5, 1])
+    col1, col2 = st.columns([4, 1])
     
     with col1:
+        def on_text_input_change():
+            """엔터키로 메시지 전송"""
+            user = UserManager.get_user_by_id(st.session_state.chat_user_id)
+            if st.session_state.user_input:
+                handle_user_message(st.session_state.user_input, user)
+                st.session_state.clear_input_after_send = True
+                st.rerun()
+        
         user_input = st.text_input(
             "메시지 입력",
+            value=st.session_state.user_input,
             key="user_input",
             placeholder="여기에 입력하거나 음성으로 말씀해주세요...",
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            on_change=on_text_input_change
         )
     
     with col2:
-        col_send, col_mic = st.columns(2)
-        with col_send:
-            send_button = st.button("전송", use_container_width=True, type="primary")
-        with col_mic:
-            mic_button = st.button("🎤", use_container_width=True)
+        send_button = st.button("전송", use_container_width=True, type="primary")
     
     if send_button and user_input:
         handle_user_message(user_input, user)
+        st.session_state.clear_input_after_send = True
         st.rerun()
-    
-    if mic_button:
-        st.info("🎤 음성 인식 기능은 개발 중입니다. 텍스트로 입력해주세요.")
     
     # 대화 종료 버튼
     st.markdown("---")
@@ -550,6 +628,29 @@ def show_chat_interface():
     
     with col1:
         if st.button("💾 대화 저장 후 종료", use_container_width=True, type="secondary"):
+            # 전체 메시지 조회
+            messages = ChatManager.get_messages(st.session_state.chat_conversation_id)
+            summary_result = create_session_summary(
+                st.session_state.chat_conversation_id,
+                [{
+                    'role': msg['speaker'],
+                    'content': msg['content']
+                } for msg in messages]
+            )
+
+            # 요약 결과를 DB에 저장
+            if summary_result:
+                people = summary_result.get('people', [])
+                next_topics = summary_result.get('next_topics', [])
+                HistoryManager.create_summary(
+                    st.session_state.chat_conversation_id,
+                    ai_summary=st.session_state.chat_summary or '대화가 요약되었습니다.',
+                    mentioned_people=', '.join(people) if people else None,
+                    main_topics=', '.join(next_topics) if next_topics else None,
+                    emotional_tone=None,
+                    suggested_questions='; '.join(next_topics) if next_topics else None
+                )
+
             ChatManager.end_conversation(st.session_state.chat_conversation_id)
             st.success("✅ 대화가 저장되었습니다!")
             st.balloons()
@@ -558,6 +659,9 @@ def show_chat_interface():
             st.session_state.chat_user_id = None
             st.session_state.chat_conversation_id = None
             st.session_state.chat_messages = []
+            st.session_state.chat_api_messages = []
+            st.session_state.chat_summary = None
+            st.session_state.last_ai_audio = None
             st.rerun()
     
     with col2:
@@ -582,14 +686,25 @@ def handle_user_message(message: str, user: dict):
     
     # AI 응답 생성
     st.session_state.waiting_for_ai = True
-    
-    ai_response = generate_ai_response(
+
+    # 새 사용자 메시지를 API 메시지 기록에도 추가
+    st.session_state.chat_api_messages.append({
+        'speaker': 'user',
+        'content': message
+    })
+
+    # 이전 대화 기록을 messages로 보내고, summary가 있으면 함께 전달
+    ai_result = generate_ai_response(
         message,
-        user,
-        st.session_state.chat_messages
+        user['id'],
+        st.session_state.chat_summary,
+        st.session_state.chat_api_messages
     )
-    
-    # AI 응답 저장
+
+    ai_response = ai_result.get('answer', '죄송합니다. 응답을 생성할 수 없습니다.')
+    new_summary = ai_result.get('summary')
+
+    # 대화 저장
     ChatManager.add_message(
         st.session_state.chat_conversation_id,
         'ai',
@@ -601,7 +716,21 @@ def handle_user_message(message: str, user: dict):
         'content': ai_response,
         'timestamp': datetime.now()
     })
-    
+
+    # AI TTS 생성
+    ai_audio = text_to_speech(ai_response)
+    if ai_audio:
+        st.session_state.last_ai_audio = ai_audio
+
+    if new_summary:
+        st.session_state.chat_summary = new_summary
+        st.session_state.chat_api_messages = []
+    else:
+        st.session_state.chat_api_messages.append({
+            'speaker': 'assistant',
+            'content': ai_response
+        })
+
     st.session_state.waiting_for_ai = False
 
 

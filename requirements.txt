@@ -25,3 +25,16 @@ pandas==2.2.0
 
 # 기타 유틸리티
 Pillow==10.2.0
+
+# FastAPI 및 API 서버 관련 패키지
+fastapi==0.110.0
+uvicorn==0.27.0
+
+# 마이크 녹음
+sounddevice==0.4.6
+scipy==1.13.0
+
+uvicorn==0.28.0
+python-multipart==0.0.9
+requests==2.31.0
+

@@ -22,9 +22,40 @@ st.set_page_config(
 # 커스텀 CSS - 프로토타입 디자인 반영
 st.markdown("""
     <style>
+    html, body {
+        background-color: #FFF8DC !important;
+        color: #333333 !important;
+    }
+    
     /* 전체 배경 */
     .stApp {
-        background-color: #FFF8DC;
+        background-color: #FFF8DC !important;
+    }
+    
+    [data-testid="stAppViewContainer"] {
+        background-color: #FFF8DC !important;
+    }
+    
+    [data-testid="stHeader"] {
+        background-color: #FFF8DC !important;
+    }
+    
+    [data-testid="stMainBlockContainer"] {
+        background-color: #FFF8DC !important;
+    }
+    
+    .main {
+        background-color: #FFF8DC !important;
+    }
+    
+    /* 모든 텍스트 색상 */
+    body, p, span, div, h1, h2, h3, h4, h5, h6 {
+        color: #333333 !important;
+        background-color: transparent;
+    }
+    
+    .stMarkdown {
+        color: #333333 !important;
     }
 
     [data-testid="stSidebarNav"] ul li:first-child a {
@@ -42,11 +73,6 @@ st.markdown("""
         color: #333;
     }
     
-    /* 메인 컨테이너 */
-    .main .block-container {
-        padding-top: 1rem;
-        max-width: 900px;
-    }
     
     /* 헤더 */
     .main-header {
@@ -57,7 +83,7 @@ st.markdown("""
     
     /* 환영 박스 */
     .welcome-box {
-        background: linear-gradient(135deg, #FFF8DC 0%, #F5F5DC 100%);
+        background: linear-gradient(135deg, #FFF8DC 0%, #F5F5DC 100%) !important;
         padding: 2rem 1.5rem;
         border-radius: 25px;
         text-align: center;
@@ -67,14 +93,14 @@ st.markdown("""
     
     .welcome-title {
         font-size: 2rem;
-        color: #333;
+        color: #333 !important;
         margin-bottom: 0.7rem;
         font-weight: 600;
     }
     
     .welcome-subtitle {
         font-size: 1.35rem;
-        color: #8B4513;
+        color: #8B4513 !important;
         font-weight: bold;
         margin: 0.5rem 0;
         line-height: 1.5;
@@ -82,22 +108,31 @@ st.markdown("""
     
     /* 원형 마이크 버튼 */
     .mic-container {
-        text-align: center;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
         margin: 1.5rem 0;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .mic-container > div {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100%;
     }
     
     .mic-circle {
         width: 150px;
         height: 150px;
-        background: linear-gradient(135deg, #D2691E 0%, #A0522D 100%);
+        background: linear-gradient(135deg, #F4C27C 0%, #D28B54 100%) !important;
         border-radius: 50%;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        margin: 0 auto;
         cursor: pointer;
-        box-shadow: 0 8px 25px rgba(139, 69, 19, 0.3);
+        box-shadow: 0 8px 25px rgba(139, 69, 19, 0.2);
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         animation: pulse 2s infinite;
@@ -122,8 +157,10 @@ st.markdown("""
         animation: none;
     }
     
-    .mic-circle:active {
+    .mic-circle:active,
+    .mic-circle:focus-visible {
         transform: scale(0.95);
+        outline: none;
     }
     
     .mic-icon {
@@ -138,6 +175,58 @@ st.markdown("""
         font-weight: 600;
         text-align: center;
         line-height: 1.2;
+        white-space: pre-line;
+    }
+
+    .mic-container .stButton {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100%;
+    }
+
+    .mic-container .stButton>button {
+        width: 150px;
+        height: 150px;
+        background: linear-gradient(135deg, #F4C27C 0%, #D28B54 100%) !important;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 8px 25px rgba(139, 69, 19, 0.2);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: pulse 2s infinite;
+        gap: 0.5rem;
+        border: none;
+        color: white !important;
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+    }
+
+    .mic-container .stButton>button:hover {
+        transform: scale(1.08);
+        box-shadow: 0 12px 35px rgba(139, 69, 19, 0.4);
+    }
+
+    .mic-container .stButton>button:active {
+        transform: scale(0.95);
+    }
+
+    .mic-container .stButton>button .stButton__label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        color: white;
+    }
+
+    .mic-container .stButton>button .stButton__label span {
+        line-height: 1.2;
+        white-space: pre-line;
+        color: white !important;
     }
     
     @keyframes mic-bounce {
@@ -178,40 +267,61 @@ st.markdown("""
         margin-top: 0.5rem;
     }
     .stButton>button {
-        background-color: #D2B48C;
-        color: #333 !important;
-        border: none;
-        border-radius: 15px;
-        padding: 0.8rem 2rem;
-        font-size: 1.1rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
+        background-color: #F4C27C !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 50%;
+        width: 150px !important;
+        height: 150px !important;
+        padding: 0 !important;
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        white-space: pre-line;
+        line-height: 1.2;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 8px 25px rgba(139, 69, 19, 0.2) !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     .stButton>button:hover {
-        background-color: #C4A574;
-        color: #333 !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+        background-color: #D28B54 !important;
+        transform: scale(1.08) !important;
+        box-shadow: 0 12px 35px rgba(139, 69, 19, 0.4) !important;
+    }
+    
+    .stButton>button:active {
+        transform: scale(0.95) !important;
     }
     
     /* 텍스트 색상 강제 */
-    .stMarkdown, p, span, div {
+    .stMarkdown, p, span, div, label {
         color: #333 !important;
     }
     
     h1, h2, h3, h4, h5, h6 {
-        color: #8B4513 !important;
+        color: #333333 !important;
     }
     
     /* 입력 필드 텍스트 */
     input, textarea, select {
         color: #333 !important;
+        background-color: white !important;
     }
     
     /* 라벨 텍스트 */
     label {
-        color: #666 !important;
+        color: #333 !important;
+    }
+    
+    /* 모든 컨테이너 배경 */
+    [data-testid="stVerticalBlockContainer"] {
+        background-color: #FFF8DC !important;
+    }
+    
+    [data-testid="stElementContainer"] {
+        background-color: transparent;
     }
     
     /* 안내 문구 */
@@ -270,15 +380,13 @@ def main():
     """, unsafe_allow_html=True)
     
     # 원형 마이크 버튼
-    st.markdown("""
-        <div class="mic-container">
-            <div class="mic-circle">
-                <div class="mic-icon">🎤</div>
-                <div class="mic-text">버튼을 눌러<br>말씀하세요</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-    
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        if st.button("🎤\n버튼을 눌러\n말씀하세요", key="start_chat_button", help="AI 대화 페이지로 이동합니다.", use_container_width=True):
+            st.session_state.current_user_id = None
+            st.session_state.current_conversation_id = None
+            st.switch_page("pages/2_AI대화.py")
+
     # 사이드바
     with st.sidebar:
         st.markdown("### 🏠 기억상자 AI")
