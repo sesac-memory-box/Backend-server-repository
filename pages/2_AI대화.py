@@ -22,7 +22,7 @@ from database.db_chat import ChatManager
 from database.db_history import HistoryManager
 
 # FastAPI 백엔드 URL 설정
-API_URL = "http://127.0.0.1:8000"
+API_URL = "https://4a570ef2.service.gcube.ai:24999"
 
 
 # 페이지 설정
