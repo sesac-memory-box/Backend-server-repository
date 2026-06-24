@@ -392,18 +392,6 @@ def main():
         st.markdown("### 🏠 기억상자 AI")
         st.markdown("---")
         
-        # 데이터베이스 연결 상태
-        try:
-            from database.db_config import test_connection
-            if test_connection():
-                st.success("✅ 데이터베이스 연결됨")
-            else:
-                st.error("❌ 데이터베이스 연결 실패")
-        except Exception as e:
-            st.error(f"⚠️ 연결 오류: {str(e)}")
-        
-        st.markdown("---")
-        
         # 정보
         st.markdown("### ℹ️ 서비스 정보")
         st.info("""
